@@ -1,0 +1,10 @@
+{
+	"#include": [
+		"file:////mml.jsap",
+		"file:////mqtt.jsap",
+		"file:////observations.jsap"
+	],
+	"oauth": {
+		"enable": false
+	}
+}

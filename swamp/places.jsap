@@ -1,0 +1,110 @@
+{
+	"namespaces": {
+		"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+		"rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+		"schema": "http://schema.org/",
+		"xsd": "http://www.w3.org/2001/XMLSchema#"
+	},
+	"queries": {
+		"CONTAINED_PLACES": {
+			"forcedBindings": {
+				"root": {
+					"type": "uri",
+					"value": "http://a.uri/Mars"
+				}
+			},
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/context> {?root schema:containsPlace ?child }}"
+		},
+		"MAP_GROUPS": {
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/context> {?root rdf:type schema:Place; rdf:type ?group ; schema:name ?name ;  schema:GeoCoordinates ?coordinate . ?coordinate schema:latitude ?lat ; schema:longitude ?long . ?group rdfs:label ?label   FILTER NOT EXISTS{?root schema:containedInPlace ?place}}}"
+		},
+		"MAP_PLACES": {
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/context> {?root rdf:type schema:Place; schema:name ?name ;  schema:GeoCoordinates ?coordinate . ?coordinate schema:latitude ?lat ; schema:longitude ?long.  FILTER NOT EXISTS{?root schema:containedInPlace ?place}}}"
+		},
+		"NO_CHILD": {
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/context> {?root rdf:type schema:Place ; schema:name ?name . FILTER NOT EXISTS{?child schema:containedInPlace ?root}}}"
+		},
+		"PLACES": {
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/context> {?place rdf:type schema:Place; schema:name ?name ;  schema:GeoCoordinates ?coordinate . ?coordinate schema:latitude ?lat ; schema:longitude ?long}}"
+		},
+		"PLACES_COUNT": {
+			"sparql": "SELECT (COUNT(?place) AS ?count) WHERE {GRAPH <http://wot.arces.unibo.it/context> {?place rdf:type schema:Place}}"
+		},
+		"ROOT_PLACES": {
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/context> {?root rdf:type schema:Place .  FILTER NOT EXISTS{?root schema:containedInPlace ?place} }}"
+		}
+	},
+	"updates": {
+		"ADD_PLACE": {
+			"forcedBindings": {
+				"lat": {
+					"datatype": "xsd:decimal",
+					"type": "literal",
+					"value": "44.489664"
+				},
+				"lon": {
+					"datatype": "xsd:decimal",
+					"type": "literal",
+					"value": "11.357023"
+				},
+				"name": {
+					"type": "literal",
+					"value": "Mars"
+				},
+				"place": {
+					"type": "uri",
+					"value": "http://a.uri/Mars"
+				}
+			},
+			"sparql": "INSERT {GRAPH <http://wot.arces.unibo.it/context> {?place rdf:type schema:Place; schema:name ?name ;  schema:GeoCoordinates _:coordinate . _:coordinate schema:latitude ?lat ; schema:longitude ?lon}} WHERE {}"
+		},
+		"DELETE_LINK_PLACES": {
+			"forcedBindings": {
+				"child": {
+					"type": "uri",
+					"value": "http://a.uri/childPlace"
+				},
+				"root": {
+					"type": "uri",
+					"value": "http://a.uri/rootPlace"
+				}
+			},
+			"sparql": "DELETE DATA { GRAPH <http://wot.arces.unibo.it/context> {?root schema:containsPlace ?child . ?child schema:containedInPlace ?root }}"
+		},
+		"LINK_PLACES": {
+			"forcedBindings": {
+				"child": {
+					"type": "uri",
+					"value": "http://a.uri/childPlace"
+				},
+				"root": {
+					"type": "uri",
+					"value": "http://a.uri/rootPlace"
+				}
+			},
+			"sparql": "INSERT DATA { GRAPH <http://wot.arces.unibo.it/context> {?root schema:containsPlace ?child . ?child schema:containedInPlace ?root }}"
+		},
+		"REMOVE_PLACE": {
+			"forcedBindings": {
+				"place": {
+					"type": "uri",
+					"value": "http://a.uri/Mars"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/context> DELETE {?place rdf:type schema:Place; schema:name ?name ;  schema:GeoCoordinates ?coordinate . ?coordinate schema:latitude ?lat ; schema:longitude ?lon} WHERE {?place rdf:type schema:Place; schema:name ?name ;  schema:GeoCoordinates ?coordinate . ?coordinate schema:latitude ?lat ; schema:longitude ?lon}"
+		},
+		"UPDATE_PLACE_NAME": {
+			"forcedBindings": {
+				"name": {
+					"type": "literal",
+					"value": "Mars"
+				},
+				"place": {
+					"type": "uri",
+					"value": "http://a.uri/Mars"
+				}
+			},
+			"sparql": "DELETE {GRAPH <http://wot.arces.unibo.it/context> {?place schema:name ?oldname}} INSERT {GRAPH <http://wot.arces.unibo.it/context> {?place schema:name ?name}} WHERE {GRAPH <http://wot.arces.unibo.it/context> {?place schema:name ?oldname}}"
+		}
+	}
+}

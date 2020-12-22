@@ -1,0 +1,211 @@
+{
+	"namespaces": {
+		"mqtt": "http://wot.arces.unibo.it/mqtt#",
+		"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+		"rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+		"time": "http://www.w3.org/2006/time#",
+		"xsd": "http://www.w3.org/2001/XMLSchema#"
+	},
+	"queries": {
+		"MQTT_BROKER_TOPICS": {
+			"forcedBindings": {
+				"port": {
+					"datatype": "xsd:integer",
+					"type": "literal",
+					"value": 52877
+				},
+				"url": {
+					"type": "literal",
+					"value": "giove.arces.unibo.it"
+				},
+				"user": {
+					"type": "literal",
+					"value": ""
+				}
+			},
+			"sparql": "SELECT ?topic WHERE { GRAPH <http://wot.arces.unibo.it/mqtt> {?broker mqtt:url ?url ; rdf:type mqtt:Broker ; mqtt:port ?port ; mqtt:user ?user ; mqtt:topic ?topic}}"
+		},
+		"MQTT_BROKERS": {
+			"sparql": "SELECT * WHERE { GRAPH <http://wot.arces.unibo.it/mqtt> {?broker mqtt:url ?url ; rdf:type mqtt:Broker ; mqtt:port ?port ; mqtt:sslProtocol ?sslProtocol ; mqtt:user ?user ; mqtt:password ?password ; mqtt:sslCA ?caFile ; mqtt:clientId ?clientId}}"
+		},
+		"MQTT_MAPPER": {
+			"forcedBindings": {
+				"mapper": {
+					"type": "uri",
+					"value": "mqtt:GuaspariMapper"
+				}
+			},
+			"sparql": "SELECT ?topic ?regex {GRAPH <http://wot.arces.unibo.it/mqtt> {?mapper rdf:type mqtt:Mapper ; mqtt:topic ?topic . OPTIONAL {?mapper mqtt:regex ?regex}}}"
+		},
+		"MQTT_MAPPERS_TOPICS": {
+			"sparql": "SELECT DISTINCT ?topic {GRAPH <http://wot.arces.unibo.it/mqtt> {?mapper rdf:type mqtt:Mapper ; mqtt:topic ?topic}}"
+		},
+		"MQTT_MAPPINGS": {
+			"sparql": "SELECT * {GRAPH <http://wot.arces.unibo.it/mqtt> {?mapping rdf:type mqtt:Mapping ; mqtt:observation ?observation ; mqtt:topic ?topic}}"
+		},
+		"MQTT_MESSAGES": {
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/mqtt/message> {?message rdf:type mqtt:Message ; mqtt:value ?value ; mqtt:topic ?topic ; mqtt:hasBroker ?broker;  time:inXSDDateTimeStamp ?timestamp}}"
+		},
+		"MQTT_TOPIC_VALUE": {
+			"forcedBindings": {
+				"topic": {
+					"type": "literal",
+					"value": "mqttTopicXYZ"
+				}
+			},
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/mqtt/message> {?message rdf:type mqtt:Message ; mqtt:topic ?topic; mqtt:value ?value}}"
+		},
+		"MQTT_TOPICS": {
+			"sparql": "SELECT DISTINCT * WHERE {GRAPH <http://wot.arces.unibo.it/mqtt/message> {?message rdf:type mqtt:Message ; mqtt:topic ?topic ; mqtt:hasBroker ?broker}}"
+		},
+		"MQTT_TOPICS_COUNT": {
+			"sparql": "SELECT (COUNT(DISTINCT ?topic) AS ?topics) WHERE {GRAPH <http://wot.arces.unibo.it/mqtt/message> {?message rdf:type mqtt:Message ; mqtt:topic ?topic}}"
+		}
+	},
+	"updates": {
+		"ADD_MQTT_BROKER": {
+			"forcedBindings": {
+				"caFile": {
+					"type": "literal",
+					"value": ""
+				},
+				"clientId": {
+					"type": "literal",
+					"value": ""
+				},
+				"password": {
+					"type": "literal",
+					"value": ""
+				},
+				"port": {
+					"datatype": "xsd:integer",
+					"type": "literal",
+					"value": 52877
+				},
+				"sslProtocol": {
+					"type": "literal",
+					"value": ""
+				},
+				"url": {
+					"type": "literal",
+					"value": "giove.arces.unibo.it"
+				},
+				"username": {
+					"type": "literal",
+					"value": ""
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/mqtt> DELETE {?broker mqtt:url ?url ; rdf:type mqtt:Broker ; mqtt:port ?port ; mqtt:user ?username ; mqtt:password ?password ; mqtt:sslProtocol ?sslProtocol ; mqtt:sslCA ?caFile ; mqtt:clientId ?clientId} INSERT {_:broker mqtt:url ?url ; rdf:type mqtt:Broker ; mqtt:port ?port ; mqtt:user ?username ; mqtt:password ?password ; mqtt:sslProtocol ?sslProtocol ; mqtt:sslCA ?caFile ; mqtt:clientId ?clientId} WHERE {OPTIONAL {?broker mqtt:url ?url ; rdf:type mqtt:Broker ; mqtt:port ?port ; mqtt:user ?username ; mqtt:password ?password ; mqtt:sslProtocol ?sslProtocol ; mqtt:sslCA ?caFile ; mqtt:clientId ?clientId} }"
+		},
+		"ADD_MQTT_MAPPER": {
+			"forcedBindings": {
+				"mapper": {
+					"type": "uri",
+					"value": "mqtt:GuaspariMapper"
+				},
+				"topic": {
+					"type": "literal",
+					"value": "application/1/device/754366e02ff23515/rx"
+				}
+			},
+			"sparql": "INSERT DATA {GRAPH <http://wot.arces.unibo.it/mqtt> {?mapper rdf:type mqtt:Mapper ; mqtt:topic ?topic}}"
+		},
+		"ADD_MQTT_MAPPING": {
+			"forcedBindings": {
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				},
+				"topic": {
+					"type": "literal",
+					"value": "5CCF7F1B599E/temperature"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/mqtt> DELETE {?mapping ?p ?o} INSERT {_:mapping rdf:type mqtt:Mapping ; mqtt:observation ?observation ; mqtt:topic ?topic} WHERE {OPTIONAL{?mapping rdf:type mqtt:Mapping ; mqtt:observation ?observation ; ?p ?o}}"
+		},
+		"ADD_REGEX_TO_MQTT_MAPPER": {
+			"forcedBindings": {
+				"mapper": {
+					"type": "uri",
+					"value": "mqtt:GuaspariMapper"
+				},
+				"regex": {
+					"type": "literal",
+					"value": "S[|]\\w+[|]I[|]\\w+[|](?<id1>\\w+)[|](?<value1>\\w+)[|](?<id2>\\w+)[|](?<value2>\\w+)"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/mqtt> INSERT {?mapper mqtt:regex ?regex} WHERE {?mapper rdf:type mqtt:Mapper}"
+		},
+		"ADD_TOPIC_TO_MQTT_BROKER": {
+			"forcedBindings": {
+				"port": {
+					"datatype": "xsd:integer",
+					"type": "literal",
+					"value": 52877
+				},
+				"topic": {
+					"type": "literal",
+					"value": "#"
+				},
+				"url": {
+					"type": "literal",
+					"value": "giove.arces.unibo.it"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/mqtt> INSERT {?broker mqtt:topic ?topic} WHERE {?broker rdf:type mqtt:Broker ; mqtt:url ?url ; mqtt:port ?port}"
+		},
+		"ADD_TOPIC_TO_MQTT_MAPPER": {
+			"forcedBindings": {
+				"mapper": {
+					"type": "uri",
+					"value": "mqtt:GuaspariMapper"
+				},
+				"topic": {
+					"type": "literal",
+					"value": "application/1/device/1bc0f73caf72d467/rx"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/mqtt> INSERT {?mapper mqtt:topic ?topic} WHERE {?mapper rdf:type mqtt:Mapper}"
+		},
+		"MQTT_MESSAGE": {
+			"forcedBindings": {
+				"broker": {
+					"type": "literal",
+					"value": "tcp://giove.arces.unibo.it:52887"
+				},
+				"topic": {
+					"type": "literal",
+					"value": "mqttTopicXYZ"
+				},
+				"value": {
+					"type": "literal",
+					"value": "mqttValueXYZ"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/mqtt/message> DELETE {?oldMessage rdf:type mqtt:Message ; mqtt:value ?oldValue ; mqtt:topic ?topic ; mqtt:hasBroker ?broker ; time:inXSDDateTimeStamp ?oldTimestamp} INSERT {_:message rdf:type mqtt:Message ; mqtt:value ?value ; mqtt:topic ?topic ; mqtt:hasBroker ?broker ; time:inXSDDateTimeStamp ?timestamp} WHERE {BIND(now() AS ?timestamp) . OPTIONAL{?oldMessage rdf:type mqtt:Message ; mqtt:value ?oldValue ; mqtt:topic ?topic ; mqtt:hasBroker ?broker ; time:inXSDDateTimeStamp ?oldTimestamp}}"
+		},
+		"REMOVE_MQTT_BROKER": {
+			"forcedBindings": {
+				"port": {
+					"datatype": "xsd:integer",
+					"type": "literal",
+					"value": 52877
+				},
+				"url": {
+					"type": "literal",
+					"value": "giove.arces.unibo.it"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/mqtt> DELETE {?broker ?p ?o} WHERE {?broker rdf:type mqtt:Broker ; mqtt:url ?url ; mqtt:port ?port ; ?p ?o }"
+		},
+		"REMOVE_MQTT_MAPPER": {
+			"forcedBindings": {
+				"pattern": {
+					"type": "uri",
+					"value": "mqtt:GuaspariMapper"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/mqtt> DELETE {?mapper ?p ?o} WHERE {?mapper rdf:type mqtt:Mapper ; ?p ?o} "
+		}
+	}
+}

@@ -1,0 +1,234 @@
+{
+	"namespaces": {
+		"qudt": "http://qudt.org/schema/qudt#",
+		"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+		"rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+		"schema": "http://schema.org/",
+		"sosa": "http://www.w3.org/ns/sosa/",
+		"swamp": "http://swamp-project.org/ns#",
+		"time": "http://www.w3.org/2006/time#",
+		"unit": "http://qudt.org/vocab/unit#",
+		"xsd": "http://www.w3.org/2001/XMLSchema#"
+	},
+	"queries": {
+		"ALL_VALUES": {
+			"forcedBindings": {
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				}
+			},
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/observation> {?observation rdf:type sosa:Observation ; rdfs:label ?label ; sosa:hasFeatureOfInterest ?location ; sosa:hasResult ?quantity . ?quantity rdf:type qudt:QuantityValue ; qudt:unit ?unit OPTIONAL {?quantity qudt:numericValue ?value} . OPTIONAL {?observation sosa:resultTime ?timestamp}}}"
+		},
+		"HISTORICAL_TRIPLES": {
+			"sparql": "SELECT (COUNT(?log) AS ?count) WHERE {GRAPH <http://wot.arces.unibo.it/observation/history> {?log ?x ?y}}"
+		},
+		"LIVE_TRIPLES": {
+			"sparql": "SELECT (COUNT(?log) AS ?count) FROM <http://swamp-project.org/observation/cbec> FROM <http://wot.arces.unibo.it/observation> WHERE {?log ?x ?y}"
+		},
+		"LOG_QUANTITY": {
+			"forcedBindings": {
+				"from": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2019-07-15T00:00:00Z"
+				},
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				},
+				"to": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2019-07-15T23:59:59Z"
+				}
+			},
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/observation/history> {?result sosa:isResultOf ?observation ; qudt:numericValue ?value; time:inXSDDateTimeStamp ?timestamp} FILTER (xsd:dateTime(?timestamp) > xsd:dateTime(?from) && xsd:dateTime(?timestamp) < xsd:dateTime(?to))} ORDER BY xsd:dateTime(?timestamp)"
+		},
+		"OBSERVATIONS": {
+			"sparql": "SELECT * FROM <http://wot.arces.unibo.it/unit> FROM <http://swamp-project.org/observation/cbec> FROM <http://wot.arces.unibo.it/observation> FROM <http://wot.arces.unibo.it/context> WHERE {?observation rdf:type sosa:Observation ; rdfs:label ?label ; sosa:hasResult ?quantity ; sosa:hasFeatureOfInterest ?location . ?location rdf:type schema:Place ; schema:name ?name ; schema:GeoCoordinates ?coordinate . ?coordinate schema:latitude ?lat ; schema:longitude ?long . ?quantity rdf:type qudt:QuantityValue ; qudt:unit ?unit . OPTIONAL {?quantity qudt:numericValue ?value} . OPTIONAL {?observation sosa:resultTime ?timestamp} . ?location schema:name ?name . OPTIONAL{?unit qudt:symbol ?symbol}}"
+		},
+		"OBSERVATIONS_BY_LOCATION": {
+			"forcedBindings": {
+				"location": {
+					"type": "uri",
+					"value": "http://a.uri/Mars"
+				}
+			},
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/observation> {?observation sosa:hasFeatureOfInterest ?location ; rdf:type sosa:Observation ; rdfs:label ?label ; sosa:hasResult ?quantity . ?quantity rdf:type qudt:QuantityValue ; qudt:unit ?unit . OPTIONAL {?quantity qudt:numericValue ?value} . OPTIONAL {?observation sosa:resultTime ?timestamp}}}"
+		},
+		"OBSERVATIONS_BY_UNIT": {
+			"forcedBindings": {
+				"unit": {
+					"type": "uri",
+					"value": "unit:DegreeCelsius"
+				}
+			},
+			"sparql": "SELECT * WHERE {GRAPH <http://wot.arces.unibo.it/observation> {?observation rdf:type sosa:Observation ; rdfs:label ?label ; sosa:hasFeatureOfInterest ?location ; sosa:hasResult ?quantity . ?quantity rdf:type qudt:QuantityValue ; qudt:unit ?unit . OPTIONAL {?quantity qudt:numericValue ?value} . OPTIONAL {?observation sosa:resultTime ?timestamp}}}"
+		},
+		"OBSERVATIONS_COUNT": {
+			"sparql": "SELECT (COUNT(?observation) AS ?count) WHERE {GRAPH <http://wot.arces.unibo.it/observation> {?observation rdf:type sosa:Observation}}"
+		},
+		"OBSERVATIONS_OLD": {
+			"sparql": "SELECT * WHERE {?unit qudt:symbol ?symbol . GRAPH <http://wot.arces.unibo.it/context> {?location rdf:type schema:Place ; schema:name ?name ; schema:GeoCoordinates ?coordinate . ?coordinate schema:latitude ?lat ; schema:longitude ?long}.GRAPH <http://wot.arces.unibo.it/observation> {?observation rdf:type sosa:Observation ; rdfs:label ?label ; sosa:hasResult ?quantity ; sosa:hasFeatureOfInterest ?location . ?quantity rdf:type qudt:QuantityValue ; qudt:unit ?unit . OPTIONAL {?quantity qudt:numericValue ?value} . OPTIONAL {?observation sosa:resultTime ?timestamp}}}"
+		},
+		"WATER_TABLE": {
+			"forcedBindings": {
+				"from": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2020-07-23T00:00:00Z"
+				},
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				},
+				"to": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2020-07-23T23:59:59Z"
+				}
+			},
+			"sparql": "SELECT (AVG(?wt) AS ?avg)  WHERE {GRAPH <http://wot.arces.unibo.it/observation/history> {?result sosa:isResultOf ?observation ; qudt:numericValue ?wt; time:inXSDDateTimeStamp ?timestamp} FILTER (xsd:dateTime(?timestamp) > ?from && xsd:dateTime(?timestamp) < ?to)}"
+		},
+		"WEATHER_PRECIPITATION": {
+			"forcedBindings": {
+				"from": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2019-07-15T00:00:00Z"
+				},
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				},
+				"to": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2019-07-15T23:59:59Z"
+				}
+			},
+			"sparql": "SELECT (SUM(?value) AS ?sum) WHERE {GRAPH <http://wot.arces.unibo.it/observation/history> {?result sosa:isResultOf ?observation ; qudt:numericValue ?value; time:inXSDDateTimeStamp ?timestamp} FILTER (xsd:dateTime(?timestamp) > ?from && xsd:dateTime(?timestamp) < ?to)}"
+		},
+		"WEATHER_TEMPERATURE": {
+			"forcedBindings": {
+				"from": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2019-06-02T00:00:00Z"
+				},
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				},
+				"to": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2019-06-02T23:59:59Z"
+				}
+			},
+			"sparql": "SELECT (MAX(?value) AS ?max) (AVG(?value) AS ?avg) (MIN(?value) AS ?min) WHERE {GRAPH <http://wot.arces.unibo.it/observation/history> {?result sosa:isResultOf ?observation ; qudt:numericValue ?value; time:inXSDDateTimeStamp ?timestamp} FILTER (xsd:dateTime(?timestamp) > ?from && xsd:dateTime(?timestamp) < ?to)}"
+		}
+	},
+	"updates": {
+		"ADD_OBSERVATION": {
+			"forcedBindings": {
+				"comment": {
+					"type": "literal",
+					"value": "This is an observation"
+				},
+				"label": {
+					"type": "literal",
+					"value": "The observation XYZ"
+				},
+				"location": {
+					"type": "uri",
+					"value": "http://a.uri/Mars"
+				},
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				},
+				"unit": {
+					"type": "uri",
+					"value": "unit:DegreeCelsius"
+				}
+			},
+			"sparql": "INSERT {GRAPH <http://wot.arces.unibo.it/observation> {?observation rdf:type sosa:Observation ; rdfs:label ?label ; rdfs:comment ?comment ; sosa:hasFeatureOfInterest ?location ; sosa:hasResult _:quantity . _:quantity rdf:type qudt:QuantityValue ; qudt:unit ?unit ; qudt:numericValue 'NaN'}} WHERE {}"
+		},
+		"LOG_QUANTITY": {
+			"forcedBindings": {
+				"observation": {
+					"type": "uri",
+					"value": "http://an/observation/uri/ObservationXYZ"
+				},
+				"timestamp": {
+					"datatype": "xsd:dateTimeStamp",
+					"type": "literal",
+					"value": "1974-10-13T00:00:00Z"
+				},
+				"value": {
+					"datatype": "xsd:decimal",
+					"type": "literal",
+					"value": "1234"
+				}
+			},
+			"sparql": "INSERT {GRAPH <http://wot.arces.unibo.it/observation/history> {_:result sosa:isResultOf ?observation ; qudt:numericValue ?value ; time:inXSDDateTimeStamp ?timestamp}} WHERE {}"
+		},
+		"REMOVE_OBSERVATION": {
+			"forcedBindings": {
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				}
+			},
+			"sparql": "DELETE {GRAPH <http://wot.arces.unibo.it/observation> {?observation rdf:type sosa:Observation ; rdfs:label ?label ; sosa:hasResult ?quantity ; sosa:hasFeatureOfInterest ?location . ?quantity rdf:type qudt:QuantityValue ; qudt:unit ?unit . ?quantity qudt:numericValue ?value . ?observation sosa:resultTime ?timestamp}} WHERE {?unit qudt:symbol ?symbol . GRAPH <http://wot.arces.unibo.it/observation> {?observation rdf:type sosa:Observation ; rdfs:label ?label ; sosa:hasResult ?quantity ; sosa:hasFeatureOfInterest ?location . ?quantity rdf:type qudt:QuantityValue ; qudt:unit ?unit . OPTIONAL {?quantity qudt:numericValue ?value} . OPTIONAL {?observation sosa:resultTime ?timestamp}} . GRAPH <http://wot.arces.unibo.it/context> {?location schema:name ?name} }"
+		},
+		"REMOVE_LOG_QUANTITY": {
+			"forcedBindings": {
+				"from": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2019-07-15T00:00:00Z"
+				},
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				},
+				"to": {
+					"datatype": "xsd:dateTime",
+					"type": "literal",
+					"value": "2019-07-15T23:59:59Z"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/observation/history> DELETE {?result sosa:isResultOf ?observation ; qudt:numericValue ?value; time:inXSDDateTimeStamp ?timestamp} WHERE {?result sosa:isResultOf ?observation ; qudt:numericValue ?value; time:inXSDDateTimeStamp ?timestamp} FILTER (xsd:dateTime(?timestamp) > xsd:dateTime(?from) && xsd:dateTime(?timestamp) < xsd:dateTime(?to))} ORDER BY xsd:dateTime(?timestamp)"
+		},
+		"UPDATE_OBSERVATION_LABEL": {
+			"forcedBindings": {
+				"label": {
+					"type": "literal",
+					"value": "The observation XYZ"
+				},
+				"observation": {
+					"type": "uri",
+					"value": "http://a.uri/ObservationXYZ"
+				}
+			},
+			"sparql": "DELETE {GRAPH <http://wot.arces.unibo.it/observation> {?observation rdfs:label ?oldlabel}} INSERT {GRAPH <http://wot.arces.unibo.it/observation> {?observation rdfs:label ?label}} WHERE {GRAPH <http://wot.arces.unibo.it/observation> {?observation rdfs:label ?oldlabel}}"
+		},
+		"UPDATE_OBSERVATION_VALUE": {
+			"forcedBindings": {
+				"observation": {
+					"type": "uri",
+					"value": "http://an/observation/uri/ObservationXYZ"
+				},
+				"value": {
+					"datatype": "xsd:decimal",
+					"type": "literal",
+					"value": "12345.67890"
+				}
+			},
+			"sparql": "WITH <http://wot.arces.unibo.it/observation> DELETE { ?quantity qudt:numericValue ?oldValue . ?observation sosa:resultTime ?oldTime } INSERT { ?quantity qudt:numericValue ?value . ?observation sosa:resultTime ?timestamp } WHERE {BIND(now() AS ?timestamp) . ?observation rdf:type sosa:Observation ; sosa:hasResult ?quantity . OPTIONAL { ?observation sosa:resultTime ?oldTime} . OPTIONAL {?quantity qudt:numericValue ?oldValue }}"
+		}
+	}
+}
